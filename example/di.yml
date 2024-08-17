@@ -1,0 +1,19 @@
+version: 0
+
+# Dependencies are described here
+di:
+  # Order does matter, keep individual dependencies on the top
+  x/db:
+    # Immediate dependency configuration
+    prepare_stmt: true
+    # A '$' sign points to look up the env
+    path: $DB_PATH # "example.db" is also valid
+  # `x/hit` depends on `x/db`, that's why it's defined later
+  x/hit: {}
+
+# A list of Go imports for external dependency integration
+imports:
+  # Generation tool will add this import path, thus it will
+  # be able to inject the external dependency if it satisfies
+  # the `di.D` interface
+  - github.com/external/dependency
