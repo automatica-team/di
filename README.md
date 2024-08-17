@@ -1,4 +1,4 @@
-#  📦
+#  📦 [![GoDoc](https://pkg.go.dev/badge/automatica.team/di)](https://pkg.go.dev/automatica.team/di)
 
 `automatica.team/di`  is a dead simple dependency injection tool for Go. Supports declarative configuration.
 
@@ -12,6 +12,8 @@ Declarative configuration is optional, but is very handy and recommended to use:
 
 ```yaml
 # example/di.yml
+
+# A version of the current dependency state
 version: 0
 
 # Dependencies are described here
@@ -22,19 +24,19 @@ di:
     prepare_stmt: true
     # A '$' sign points to look up the env
     path: $DB_PATH # "example.db" is also valid
-  # `x/hit` depends on `x/db`, that's why it's defined later
+  # `x/hit` depends on `x/db`, that's why it's defined as the second
   x/hit: {}
 
 # A list of Go imports for external dependency integration
 imports:
   # Generation tool will add this import path, thus it will
   # be able to inject the external dependency if it satisfies
-  # the `di.D` interface
+  # the `di.Dependency` interface
   - github.com/external/dependency
 
 ```
 
-Use a generation tool that parses the `di.yml` file, automatically injects the dependencies, as well as provides a configuration for them:
+Use a `cmd/di` generation tool to automatically inject the dependencies:
 
 ```go
 // example/main.gen.go
@@ -110,7 +112,8 @@ func (DB) New(c di.C) (di.D, error) {
 }
 ```
 
-Dependency can inject other dependencies declared above it. For example, `x/hit` depends on the `x/db`. `Hitter` provides some server logic to be used later in the final `Server` runnable:
+Dependency can inject other dependencies declared above it. In this example, `x/hit` depends on the `x/db`.
+`Hitter` provides some server logic to be used later in the final `Server` runnable:
 
 ```go
 // example/hit/hit.go
