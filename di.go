@@ -1,5 +1,9 @@
 package di
 
+import (
+	"errors"
+)
+
 // A set of frequently used aliases for the package.
 type (
 	D = Dependency
@@ -72,5 +76,20 @@ func Must[T any](v T, _ error) T {
 
 // Version returns the version of the current dependencies state.
 func Version() string {
-	return diGlobal.Version
+	return global.Version
+}
+
+// New creates a new instance of the dependency by its name.
+// It uses the parsed dependency config if such parsed.
+// TODO: Inject other dependencies into the new instance.
+func New[T Dependency](name string) (T, error) {
+	d, err := globalNew(name)
+	t, ok := d.(T)
+	if err != nil {
+		return t, err
+	}
+	if !ok {
+		err = errors.New("di: invalid typed parameter")
+	}
+	return t, err
 }

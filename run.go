@@ -14,7 +14,7 @@ func run[R Runnable](r R) (Runnable, error) {
 			return nil, err
 		}
 
-		idep, err := dep.New(pickConfig(name))
+		idep, err := dep.New(globalConfig(name))
 		if err != nil {
 			return nil, err
 		}

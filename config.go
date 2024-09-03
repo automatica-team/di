@@ -7,9 +7,6 @@ import (
 	"time"
 
 	"github.com/spf13/cast"
-	"gopkg.in/yaml.v3"
-
-	. "github.com/wk8/go-ordered-map/v2"
 )
 
 // Any retrieves the value for the given key.
@@ -70,40 +67,4 @@ func (c Config) Duration(key string) (time.Duration, error) {
 	return cast.ToDuration(v), err
 }
 
-var diGlobal struct {
-	Deps    OrderedMap[string, M] `yaml:"di"`
-	Imports []string              `yaml:"imports"`
-	Version string                `yaml:"version"`
-	parsed  bool
-}
-
-func parse(path string) error {
-	f, err := os.Open(path)
-	if err != nil {
-		return fmt.Errorf("di/parse: %w", err)
-	}
-	defer f.Close()
-
-	d := yaml.NewDecoder(f)
-	if err := d.Decode(&diGlobal); err != nil {
-		return fmt.Errorf("di/parse: %w", err)
-	}
-
-	diGlobal.parsed = true
-	return nil
-}
-
 var emptyConfig = Config{m: make(map[string]any)}
-
-func pickConfig(name string) Config {
-	if !diGlobal.parsed {
-		return emptyConfig
-	}
-
-	m, ok := diGlobal.Deps.Get(name)
-	if !ok {
-		return emptyConfig
-	}
-
-	return Config{name: name, m: m}
-}
