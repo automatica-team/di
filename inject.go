@@ -3,6 +3,7 @@ package di
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"unsafe"
 )
 
@@ -31,10 +32,23 @@ func inject(target any, deps map[string]D) (err error) {
 			return fmt.Errorf("di/inject: dependency %s not exists", name)
 		}
 
+		// TODO: compare dependency type with the target field type?
+
 		vf := v.Field(i)
-		// Set dependency into the target field.
-		uf := reflect.NewAt(vf.Type(), unsafe.Pointer(vf.UnsafeAddr())).Elem()
-		uf.Set(reflect.ValueOf(dep))
+		vft := vf.Type()
+
+		switch {
+		// If the target field is an Optional type.
+		case strings.HasPrefix(vft.String(), "di.Optional"):
+			of := vf.FieldByName("v")
+			// Set dependency into the Optional's v field.
+			ua := reflect.NewAt(of.Type(), unsafe.Pointer(of.UnsafeAddr()))
+			ua.Elem().Set(reflect.ValueOf(dep))
+		default:
+			// Set dependency into the target field.
+			ua := reflect.NewAt(vft, unsafe.Pointer(vf.UnsafeAddr()))
+			ua.Elem().Set(reflect.ValueOf(dep))
+		}
 	}
 
 	return err

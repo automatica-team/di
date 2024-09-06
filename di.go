@@ -44,6 +44,7 @@ var deps []Dependency
 
 // Inject adds a dependency to the global scope.
 // Always inject dependencies you are going to use.
+// Always pass the pointer to the dependency.
 func Inject(d Dependency) {
 	deps = append(deps, d)
 }
