@@ -27,28 +27,23 @@ func inject(target any, deps map[string]D) (err error) {
 			continue
 		}
 
-		dep, ok := deps[name]
-		if !ok {
-			return fmt.Errorf("di/inject: dependency %s not exists", name)
-		}
-
-		// TODO: compare dependency type with the target field type?
-
 		vf := v.Field(i)
 		vft := vf.Type()
 
-		switch {
-		// If the target field is an Optional type.
-		case strings.HasPrefix(vft.String(), "di.Optional"):
-			of := vf.FieldByName("v")
-			// Set dependency into the Optional's v field.
-			ua := reflect.NewAt(of.Type(), unsafe.Pointer(of.UnsafeAddr()))
-			ua.Elem().Set(reflect.ValueOf(dep))
-		default:
-			// Set dependency into the target field.
-			ua := reflect.NewAt(vft, unsafe.Pointer(vf.UnsafeAddr()))
-			ua.Elem().Set(reflect.ValueOf(dep))
+		optional := strings.HasPrefix(vft.String(), "di.Optional")
+		if optional {
+			// Override target field with internal Optional `v` field.
+			vf = vf.FieldByName("v")
 		}
+
+		dep, ok := deps[name]
+		if !ok && !optional {
+			return fmt.Errorf("di/inject: dependency %s does not exist", name)
+		}
+
+		// Set dependency into the target field.
+		ua := reflect.NewAt(vf.Type(), unsafe.Pointer(vf.UnsafeAddr()))
+		ua.Elem().Set(reflect.ValueOf(dep))
 	}
 
 	return err

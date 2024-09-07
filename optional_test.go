@@ -25,12 +25,11 @@ func TestOptional(t *testing.T) {
 		const expected = "optional"
 		require.Equal(t, expected, v.data)
 
-		err = target.Opt.With(func(d testDependency) {
+		target.Opt.Use(func(d *testDependency) {
 			require.Equal(t, expected, d.data)
 		})
-		require.NoError(t, err)
 
-		err = target.Opt.With(func(d testDependency) error {
+		err = target.Opt.With(func(d *testDependency) error {
 			require.Equal(t, expected, d.data)
 			return errors.New("test")
 		})
@@ -45,12 +44,11 @@ func TestOptional(t *testing.T) {
 		_, ok := target.Opt.Get()
 		require.False(t, ok)
 
-		err = target.Opt.With(func(d testDependency) {
+		target.Opt.Use(func(d *testDependency) {
 			t.Error("should not be called")
 		})
-		require.NoError(t, err)
 
-		err = target.Opt.With(func(d testDependency) error {
+		err = target.Opt.With(func(d *testDependency) error {
 			t.Error("should not be called")
 			return errors.New("test")
 		})
