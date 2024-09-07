@@ -21,6 +21,8 @@ type (
 		// New creates a new instance of the dependency using the provided
 		// config `di.Config`. Don't worry about filling the new instance with
 		// other injectable dependencies, it will be done automatically.
+		//
+		// NOTE: Always return the pointer to the dependency.
 		New(C) (D, error)
 	}
 
