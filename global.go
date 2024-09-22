@@ -65,3 +65,17 @@ func globalNew(name string) (d D, err error) {
 
 	return d, inject(d, deps)
 }
+
+func globalGet[T Dependency](name string) (zero T, _ error) {
+	deps := make(map[string]D)
+	for _, dep := range globalDeps {
+		deps[dep.Name()] = dep
+	}
+
+	d, ok := deps[name]
+	if !ok {
+		return zero, fmt.Errorf("di: dependency %s not found", name)
+	}
+
+	return d.(T), nil
+}

@@ -71,16 +71,12 @@ func Run[R Runnable]() error {
 	return r.Run()
 }
 
-// Must is a helper function when working with `di.Config` that returns zero
-// value of the type if the error is not nil.
-func Must[T any](v T, _ error) T {
-	return v
-}
+// Idle is a dummy runnable that does nothing. Use it for initializing
+// your dependencies without running anything.
+type Idle struct{}
 
-// Version returns the version of the current dependencies state.
-func Version() string {
-	return global.Version
-}
+// Run implements `di.Runnable` interface.
+func (Idle) Run() error { return nil }
 
 // New creates a new instance of the dependency by its name.
 // It uses the parsed dependency config if such parsed.
@@ -94,4 +90,21 @@ func New[T Dependency](name string) (T, error) {
 		err = errors.New("di: invalid typed parameter")
 	}
 	return t, err
+}
+
+// Get returns the dependency by its name.
+// It should be already initialized.
+func Get[T Dependency](name string) (T, error) {
+	return globalGet[T](name)
+}
+
+// Must is a helper function when working with `di.Config` that returns zero
+// value of the type if the error is not nil.
+func Must[T any](v T, _ error) T {
+	return v
+}
+
+// Version returns the version of the current dependencies state.
+func Version() string {
+	return global.Version
 }
