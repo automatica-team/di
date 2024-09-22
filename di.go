@@ -1,8 +1,6 @@
 package di
 
-import (
-	"errors"
-)
+import "errors"
 
 // A set of frequently used aliases for the package.
 type (
@@ -64,6 +62,9 @@ func Parse(path ...string) error {
 // provided runnable instance. Your runnable instance will be injected with
 // dependencies as well.
 func Run[R Runnable]() error {
+	if global.Running {
+		return errors.New("di: already running")
+	}
 	r, err := run[R](*new(R))
 	if err != nil {
 		return err
@@ -77,20 +78,6 @@ type Idle struct{}
 
 // Run implements `di.Runnable` interface.
 func (Idle) Run() error { return nil }
-
-// New creates a new instance of the dependency by its name.
-// It uses the parsed dependency config if such parsed.
-func New[T Dependency](name string) (T, error) {
-	d, err := globalNew(name)
-	t, ok := d.(T)
-	if err != nil {
-		return t, err
-	}
-	if !ok {
-		err = errors.New("di: invalid typed parameter")
-	}
-	return t, err
-}
 
 // Get returns the dependency by its name.
 // It should be already initialized.

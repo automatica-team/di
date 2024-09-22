@@ -29,6 +29,10 @@ func run[R Runnable](r R) (Runnable, error) {
 		}
 
 		injected[name] = idep
+
+		// Update the original dependency from global state
+		// with initialized one.
+		globalDeps[i] = idep
 	}
 	return r, inject(&r, injected)
 }

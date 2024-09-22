@@ -9,6 +9,9 @@ import (
 )
 
 var global = struct {
+	// Running disables the user to Run something more than once.
+	Running bool
+
 	// Version is the version of the dependencies state.
 	Version string `yaml:"version"`
 
@@ -44,26 +47,6 @@ func globalConfig(name string) Config {
 		return emptyConfig
 	}
 	return Config{name: name, m: m}
-}
-
-func globalNew(name string) (d D, err error) {
-	deps := make(map[string]D)
-	for _, dep := range globalDeps {
-		deps[dep.Name()] = dep
-	}
-
-	d, ok := deps[name]
-	if !ok {
-		return nil, fmt.Errorf("di: dependency %s not found", name)
-	}
-
-	// If found, get the config and create the dependency.
-	d, err = d.New(globalConfig(name))
-	if err != nil {
-		return nil, err
-	}
-
-	return d, inject(d, deps)
 }
 
 func globalGet[T Dependency](name string) (zero T, _ error) {
