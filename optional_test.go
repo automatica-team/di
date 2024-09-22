@@ -15,6 +15,14 @@ func TestOptional(t *testing.T) {
 		"test/d": &testDependency{data: "optional"},
 	}
 
+	t.Run("Optional is not provided", func(t *testing.T) {
+		var target Target
+		err := inject(&target, map[string]D{
+			"dummy": &testDependency{},
+		})
+		require.NoError(t, err)
+	})
+
 	t.Run("Optional is injected", func(t *testing.T) {
 		var target Target
 		err := inject(&target, deps)

@@ -37,13 +37,15 @@ func inject(target any, deps map[string]D) (err error) {
 		}
 
 		dep, ok := deps[name]
-		if !ok && !optional {
+		if ok {
+			// Set dependency into the target field.
+			ua := reflect.NewAt(vf.Type(), unsafe.Pointer(vf.UnsafeAddr()))
+			ua.Elem().Set(reflect.ValueOf(dep))
+			continue
+		}
+		if !optional {
 			return fmt.Errorf("di/inject: dependency %s does not exist", name)
 		}
-
-		// Set dependency into the target field.
-		ua := reflect.NewAt(vf.Type(), unsafe.Pointer(vf.UnsafeAddr()))
-		ua.Elem().Set(reflect.ValueOf(dep))
 	}
 
 	return err
