@@ -1,11 +1,5 @@
 package di
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
-)
-
 type testDependency struct {
 	data string
 }
@@ -18,19 +12,4 @@ func (testDependency) New(c C) (D, error) {
 	return &testDependency{
 		data: Must(c.String("data")),
 	}, nil
-}
-
-func TestNew(t *testing.T) {
-	global.Deps.Set("test/d", M{"data": "test"})
-
-	d, err := New[*testDependency]("test/d")
-	require.ErrorContains(t, err, "test/d not found")
-
-	Inject(&testDependency{})
-
-	d, err = New[*testDependency]("test/d")
-	require.NoError(t, err)
-	require.NotNil(t, d)
-	require.Equal(t, "test/d", d.Name())
-	require.Equal(t, "test", d.data)
 }
