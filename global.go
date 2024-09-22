@@ -46,17 +46,22 @@ func globalConfig(name string) Config {
 	return Config{name: name, m: m}
 }
 
-func globalNew(name string) (D, error) {
-	var d Dependency
-	for i := range globalDeps {
-		if globalDeps[i].Name() == name {
-			d = globalDeps[i]
-			break
-		}
+func globalNew(name string) (d D, err error) {
+	deps := make(map[string]D)
+	for _, dep := range globalDeps {
+		deps[dep.Name()] = dep
 	}
-	if d != nil {
-		// If found, get the config and create the dependency.
-		return d.New(globalConfig(name))
+
+	d, ok := deps[name]
+	if !ok {
+		return nil, fmt.Errorf("di: dependency %s not found", name)
 	}
-	return nil, fmt.Errorf("di: dependency %s not found", name)
+
+	// If found, get the config and create the dependency.
+	d, err = d.New(globalConfig(name))
+	if err != nil {
+		return nil, err
+	}
+
+	return d, inject(d, deps)
 }

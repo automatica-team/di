@@ -71,17 +71,6 @@ func Run[R Runnable]() error {
 	return r.Run()
 }
 
-// Compose composes the dependencies and initializes them.
-// Affects the global dependencies state.
-// Don't use it together with `Inject`.
-func Compose(deps ...Dependency) error {
-	for _, dep := range deps {
-		globalDeps = append(globalDeps, dep)
-	}
-	_, err := run(composer{})
-	return err
-}
-
 // Must is a helper function when working with `di.Config` that returns zero
 // value of the type if the error is not nil.
 func Must[T any](v T, _ error) T {
@@ -95,7 +84,6 @@ func Version() string {
 
 // New creates a new instance of the dependency by its name.
 // It uses the parsed dependency config if such parsed.
-// TODO: Inject other dependencies into the new instance.
 func New[T Dependency](name string) (T, error) {
 	d, err := globalNew(name)
 	t, ok := d.(T)
