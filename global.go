@@ -48,9 +48,9 @@ func globalConfig(name string) Config {
 
 func globalNew(name string) (D, error) {
 	var d Dependency
-	for i := range deps {
-		if deps[i].Name() == name {
-			d = deps[i]
+	for i := range globalDeps {
+		if globalDeps[i].Name() == name {
+			d = globalDeps[i]
 			break
 		}
 	}

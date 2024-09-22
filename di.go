@@ -42,13 +42,13 @@ type (
 	}
 )
 
-var deps []Dependency
+var globalDeps []Dependency
 
 // Inject adds a dependency to the global scope.
 // Always inject dependencies you are going to use.
 // Always pass the pointer to the dependency.
 func Inject(d Dependency) {
-	deps = append(deps, d)
+	globalDeps = append(globalDeps, d)
 }
 
 // Parse parses the global `di.yml` configuration file.
@@ -69,6 +69,17 @@ func Run[R Runnable]() error {
 		return err
 	}
 	return r.Run()
+}
+
+// Compose composes the dependencies and initializes them.
+// Affects the global dependencies state.
+// Don't use it together with `Inject`.
+func Compose(deps ...Dependency) error {
+	for _, dep := range deps {
+		globalDeps = append(globalDeps, dep)
+	}
+	_, err := run(composer{})
+	return err
 }
 
 // Must is a helper function when working with `di.Config` that returns zero

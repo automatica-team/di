@@ -2,9 +2,9 @@ package di
 
 func run[R Runnable](r R) (Runnable, error) {
 	injected := make(map[string]Dependency)
-	for i := range deps {
+	for i := range globalDeps {
 		var (
-			dep  = deps[i]
+			dep  = globalDeps[i]
 			name = dep.Name()
 		)
 
